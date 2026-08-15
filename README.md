@@ -57,7 +57,7 @@ anders umgerechnet als die übrigen — er liefert 9 Bit in 0,5-°C-Schritten, d
 **Platine2** (Controller)
 - **ATmega328P-A** mit 16-MHz-Resonator
 - ISP-Programmierstecker (2×3)
-- Status-LED, Identify-LED, Taster für Werksreset
+- Status-LED, Identify-LED, Taster für Reset und Config
 - Steckverbinder zu Platine1 (Nano-Pinout + RS485-Signale)
 
 ## Pinbelegung
@@ -65,14 +65,13 @@ anders umgerechnet als die übrigen — er liefert 9 Bit in 0,5-°C-Schritten, d
 | Pin | Netz im Schaltplan | Funktion |
 |-----|--------------------|----------|
 | D2 | `TXEN` | RS485 Transmit-Enable |
-| D5 | `Button` | Taster für Werksreset |
+| D5 | `Button` | Taster für Config/Werksreset |
 | D10 | `OneWire` | 1-Wire-Datenleitung (4,7 kΩ Pull-up nach VCC) |
 | D12 / PB4 | `ID_LED` | Identify-LED |
 | D13 | `LED` | Status-LED |
 | D0 / D1 | `RXD` / `TXD` | UART0 zum MAX487E |
 
-D2, D5 und D10 sind aus dem Schaltplan von Platine2 abgeleitet. Weil D2 als
-Transmit-Enable belegt ist, kommt die SoftwareSerial-Variante von HBWired hier
+Die SoftwareSerial-Variante von HBWired kommt hier
 nicht in Frage (die bräuchte D2 als TX) — das Modul läuft mit
 `USE_HARDWARE_SERIAL` über UART0.
 
@@ -128,7 +127,7 @@ nacheinander an oder räumt Kanäle gezielt über `REMOVE_SENSOR` frei.
 
 ### 1. Arduino-IDE vorbereiten
 ```bash
-git clone https://github.com/ThorstenPferdekaemper/HBWired
+git clone https://github.com/maxx3105/HBWired
 # nach Arduino/libraries/HBWired kopieren
 ```
 
@@ -179,8 +178,8 @@ Hinweis: Ist die EESAVE-Fuse nicht gesetzt, löscht jeder ISP-Flash das EEPROM �
 und damit die Busadresse und alle gespeicherten Sensoradressen.
 
 ### 4. CCU/RaspberryMatic einrichten
-1. `hbw_1w_t10_v1.xml` auf die CCU kopieren
-2. Gerätedefinition einbinden (Addon bzw. FHEM)
+1. https://github.com/maxx3105/JP-HB-Devices-addon
+2. JP-HB-Devices-addon installieren
 3. Gerät an den RS485-Bus anschließen
 4. Anlernen und aus dem Posteingang übernehmen
 
@@ -216,9 +215,8 @@ der Build bricht stattdessen ab.
 ## Fehlersuche
 
 ### Sensoren werden nicht gefunden
-- 4,7-kΩ-Pull-up zwischen Daten und VCC vorhanden?
 - Verdrahtung prüfen (3-adrig, kein Parasite-Power-Betrieb vorgesehen)
-- Nach dem Anstecken neu starten oder in der CCU die Konfiguration schreiben —
+- Nach dem Anstecken Reset drücken oder in der CCU die Konfiguration schreiben —
   beides löst einen Bus-Scan aus
 - Fremde 1-Wire-Bausteine am Bus belegen kurzzeitig einen Kanal, bis ein echter
   Fühler den Platz übernimmt
@@ -236,7 +234,7 @@ anstecken.
 
 ### Gerät kommuniziert nicht
 - RS485-Verdrahtung prüfen (A/B nicht vertauscht)
-- Busadresse gesetzt? (`OWN_ADDRESS`, Seriennummer ist `HBW` + Adresse − 1120000000)
+- Busadresse gesetzt? (`OWN_ADDRESS`, Seriennummer ist 7-Stellig und darf nur einmal am Bus vorhanden sein)
 - Ist `USE_HARDWARE_SERIAL` aktiv? Ohne die Option belegt SoftwareSerial D2, das
   auf dieser Platine das Transmit-Enable ist.
 
