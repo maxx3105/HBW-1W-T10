@@ -17,7 +17,7 @@ EEPROMClass* EepromPtr = &EEPROM;  // use internal EEPROM
 // Pins
 #ifdef USE_HARDWARE_SERIAL
   #define RS485_TXEN 2  // D2  - Transmit-Enable (schematic net "TXEN")
-  #define BUTTON 5      // D5  - Button fuer Factory-Reset etc. (schematic net "Button")
+  #define BUTTON A6     // A6  - Button fuer Factory-Reset etc. (schematic net "Button")
   #define LED 13        // D13 - Signal-LED
   #define IDENTIFY_LED 12  // D12/PB4 - Identify-LED (schematic net "ID_LED"), auskommentieren wenn nicht bestueckt
 
