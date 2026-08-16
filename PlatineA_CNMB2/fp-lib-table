@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "HBW-1W-T10-Platine1") (type "KiCad") (uri "$(KIPRJMOD)/PlatineA_CNMB2.pretty") (options "") (descr ""))
+)
