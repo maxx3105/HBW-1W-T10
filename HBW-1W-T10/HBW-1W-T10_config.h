@@ -21,7 +21,7 @@ EEPROMClass* EepromPtr = &EEPROM;  // use internal EEPROM
   #define LED 13        // D13 - Signal-LED
   #define IDENTIFY_LED 12  // D12/PB4 - Identify-LED (schematic net "ID_LED"), auskommentieren wenn nicht bestueckt
 
-  #define ONEWIRE_PIN	10 // D10 - Onewire Bus (schematic net "OneWire")
+  #define ONEWIRE_PIN	10 // D10 - Onewire Bus (schematic net "1WIRE", 4k7 pullup on board)
 
 #else
   // bench setup on an Arduino Nano, RS485 via SoftwareSerial, UART0 = debug

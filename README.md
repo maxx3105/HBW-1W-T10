@@ -9,7 +9,7 @@ gemeinsamen 1-Wire-Bus. Die Sensoren werden **automatisch erkannt**: Beim Start
 scannt das Gerät den Bus, übernimmt die ROM-Adressen jedes gefundenen Fühlers und
 legt sie in freie Kanäle. In der CCU wird nur noch eingestellt, wann gesendet wird.
 
-Gerätetyp `0x81`, Aufbau auf zwei Platinen (Versorgung/Bus und Controller).
+Gerätetyp `0x81`, Aufbau auf zwei Platinen (Hauptplatine und Bedienplatine).
 
 ### Basiert auf:
 - **HBWired** von Thorsten Pferdekaemper: https://github.com/ThorstenPferdekaemper/HBWired
@@ -24,8 +24,8 @@ HBW-1W-T10/
 │   ├── HBW-1W-T10.ino
 │   └── HBW-1W-T10_config.h      Pinbelegung dieser Platine
 ├── hbw_1w_t10_v1.xml            CCU-Gerätedefinition (hs485types)
-├── Platine1/                    KiCad-Projekt Versorgung + RS485 (+ Gerber)
-├── Platine2/                    KiCad-Projekt Controller (+ Gerber)
+├── PlatineA_CNMB2/              KiCad-Projekt Hauptplatine (+ Gerber)
+├── PlatineB_CNMB2/              KiCad-Projekt Bedienplatine (+ Gerber)
 └── README.md
 ```
 
@@ -48,32 +48,41 @@ anders umgerechnet als die übrigen — er liefert 9 Bit in 0,5-°C-Schritten, d
 
 ### Bauteile
 
-**Platine1** (Versorgung und Bus)
-- **MAX487E** RS485-Transceiver
+**PlatineA_CNMB2** (Hauptplatine)
+- **ATmega328P-A** mit 16-MHz-Resonator
+- **MAX487E** RS485-Transceiver (10 kΩ nach GND an TXEN, damit der Treiber beim
+  Reset nicht sendet)
 - **MC34063AD** Step-Down-Wandler (24 V Bus → 5 V), 270 µH, SB140
 - Feinsicherung 375 mA, SM4007 Verpolschutz
+- AVR-ISP-6 Programmierstecker
 - Schraubklemmen für 24 V und Bus
+- 4,7 kΩ Pull-up am 1-Wire-Bus, 100 kΩ Pull-up am Taster
 
-**Platine2** (Controller)
-- **ATmega328P-A** mit 16-MHz-Resonator
-- ISP-Programmierstecker (2×3)
-- Status-LED, Identify-LED, Taster für Reset und Config
-- Steckverbinder zu Platine1 (Nano-Pinout + RS485-Signale)
+**PlatineB_CNMB2** (Bedienplatine)
+- Status-LED (rot) und Identify-LED (blau), je 470 Ω
+- Taster für Config/Werksreset sowie Reset
+- Steckverbinder zur Hauptplatine
 
 ## Pinbelegung
 
 | Pin | Netz im Schaltplan | Funktion |
 |-----|--------------------|----------|
 | D2 | `TXEN` | RS485 Transmit-Enable |
-| D5 | `Button` | Taster für Config/Werksreset |
-| D10 | `OneWire` | 1-Wire-Datenleitung (4,7 kΩ Pull-up nach VCC) |
+| D10 | `1WIRE` | 1-Wire-Datenleitung (4,7 kΩ Pull-up nach VCC) |
 | D12 / PB4 | `ID_LED` | Identify-LED |
 | D13 | `LED` | Status-LED |
+| A6 | `Button` | Taster für Config/Werksreset (100 kΩ Pull-up nach VCC, Taster gegen GND) |
 | D0 / D1 | `RXD` / `TXD` | UART0 zum MAX487E |
 
 Die SoftwareSerial-Variante von HBWired kommt hier
 nicht in Frage (die bräuchte D2 als TX) — das Modul läuft mit
 `USE_HARDWARE_SERIAL` über UART0.
+
+**A6** ist beim ATmega328P im TQFP-Gehäuse ein reiner ADC-Eingang: kein
+digitaler Eingangspuffer, kein interner Pull-up, `digitalRead()` funktioniert
+dort nicht. HBWired erkennt das und fragt den Taster über `analogRead() < 250`
+ab (rund 1,22 V bei 5 V), was den externen 100-kΩ-Pull-up auf der Hauptplatine
+voraussetzt.
 
 ## Funktionsumfang
 
